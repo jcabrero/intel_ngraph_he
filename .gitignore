@@ -1,0 +1,6 @@
+models/
+downloaded_models/
+*.pkl
+*.onnx
+*.h5
+__pycache__/
