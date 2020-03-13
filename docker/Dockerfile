@@ -1,5 +1,5 @@
 FROM ubuntu:18.04
-
+# Base image is Ubuntu
 RUN apt-get update -y
 
 RUN apt-get install -y build-essential software-properties-common bash-completion man  manpages-posix 
@@ -36,12 +36,18 @@ RUN wget https://github.com/bazelbuild/bazel/releases/download/0.25.2/bazel-0.25
 RUN bash bazel-0.25.2-installer-linux-x86_64.sh --user
 RUN echo "export PATH=$PATH:~/bin" >> /root/.bashrc
 
+# Getting doxygen and graphviz
+RUN apt-get install -y doxygen graphviz
+
+# Getting net-tools and ping
+RUN apt-get install -y net-tools iputils-ping dnsutils
+
 # Colored terminal
 # RUN useradd -s /bin/bash -d /home/jocabrer -m -G sudo jocabrer
 RUN echo "PS1='\[\033[01;31m\](docker) \[\e[01;36m\]\u\[\e[01;37m\]@\[\e[01;33m\]\H\[\e[01;37m\]:\[\e[01;32m\]\w\[\e[01;37m\]\$\[\033[0;37m\] '" >> /root/.bashrc
 RUN echo "alias python=python3" >> /root/.bashrc
 RUN echo "alias pip=pip3" >> /root/.bashrc
-
-
+RUN echo "source /root/he-transformer/external/venv-tf-py3/bin/activate" >> /root/.bashrc
+RUN echo "export HE_TRANSFORMER='/root/he-transformer'" >> /root/.bashrc
 WORKDIR /root
 CMD ['bash']

@@ -89,6 +89,17 @@ Note that this last command will take a considerable amount of time:
 ```
 make -j install
 ```
+Finally install the python bindings:
+```
+cd $HE_TRANSFORMER/build
+source external/venv-tf-py3/bin/activate
+make install python_client
+
+pip install python/dist/pyhe_client-*.whl
+
+python3 -c "import pyhe_client"
+```
+
 ___
 Author: @jcabrero
 

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-echo "Restarting docker daemon [Because internet does not work]"
+#echo "Restarting docker daemon [Because internet does not work]"
 #sudo systemctl restart docker
-echo
+#echo
 # list active docker containers
 echo "Active docker containers..."
 docker ps -a

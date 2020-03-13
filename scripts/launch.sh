@@ -1,8 +1,8 @@
 #!/bin/bash
 
-echo "Restarting docker daemon [Because internet does not work]"
-sudo systemctl restart docker
-echo
+#echo "Restarting docker daemon [Because internet does not work]"
+#sudo systemctl restart docker
+#echo
 
 
 echo "Launching and mounting jolly_gauss"
