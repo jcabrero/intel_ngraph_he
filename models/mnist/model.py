@@ -1,3 +1,9 @@
+import sys
+sys.path.append('/root/mnt_dir/lib/') # Adding some necessary libraries from the repository.
+# Other utilities
+from common_utils import gen_csv_from_tuples, read_csv_list, pickle_object, unpickle_object, get_ram, get_elapsed_time
+import time, os
+
 # Numpy
 import numpy as np
 
@@ -9,14 +15,7 @@ from tensorflow.keras.layers import AveragePooling2D, MaxPooling2D, Dropout, Glo
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras import backend
 
-# Other utilities
-from lib.common_utils import gen_csv_from_tuples, read_csv_list, pickle_object, unpickle_object, get_ram, get_elapsed_time
-import time, os
 
-
-def get_data():
-	(x_train, y_train, x_test, y_test) = mnist_util.load_mnist_data()
-	return x_train, y_train, x_test, y_test
 # Source code from IntelAI repository
 def cryptonets_model(input):
 
@@ -35,10 +34,8 @@ def cryptonets_model(input):
 
     return y
 
-def get_trained_model(x_train, y_train, x_test, y_test):
 
 if __name__ == "__main__":
-
 	x = Input(shape=(28, 28, 1,), name="input")
 	y = cryptonets_model(x)
 	model = Model(inputs=x, outputs=y)

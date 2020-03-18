@@ -82,12 +82,13 @@ def squash_layers(cryptonets_model, sess):
         feed_dict={
             "squashed_input:0": np.zeros((1, 14 * 14 * 5))
         })
+    print(squashed_bias)
     squashed_bias_plus_weights = y.eval(
         session=sess, feed_dict={
             "squashed_input:0": np.eye(14 * 14 * 5)
         })
     squashed_weights = squashed_bias_plus_weights - squashed_bias
-
+    print(squashed_bias)
     print("squashed layers")
 
     # Sanity check
