@@ -1,5 +1,5 @@
 downloaded_models/
 *.pkl
 *.onnx
-*.h5
+*.npy
 __pycache__/
