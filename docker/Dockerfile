@@ -44,6 +44,13 @@ RUN apt-get install -y net-tools iputils-ping dnsutils
 
 # Run Jupyter in case, we want to develop from scratch.
 RUN pip3 install jupyter
+RUN pip3 install tqdm
+RUN pip3 install imageio
+RUN pip3 install matplotlib
+RUN pip3 install scipy
+RUN pip3 install sklearn
+RUN pip3 install pandas
+
 # Colored terminal
 # RUN useradd -s /bin/bash -d /home/jocabrer -m -G sudo jocabrer
 RUN echo "PS1='\[\033[01;31m\](docker) \[\e[01;36m\]\u\[\e[01;37m\]@\[\e[01;33m\]\H\[\e[01;37m\]:\[\e[01;32m\]\w\[\e[01;37m\]\$\[\033[0;37m\] '" >> /root/.bashrc
