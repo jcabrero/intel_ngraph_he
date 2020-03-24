@@ -3,6 +3,14 @@ This repository includes an easy way to install and build a docker and some exam
 
 ## Quickstart Guide
 Assuming you already have docker installed in your computer and want to run the image itself:
+### Windows
+```
+docker pull jcabrero/intel_ngraph_he:latest
+docker run -p 10093:10093 --hostname=intel_ngraph_he \
+            --name=intel_ngraph_he -it --rm \
+            jcabrero/intel_ngraph_he:latest bash 
+```
+### Linux
 ```
 docker pull jcabrero/intel_ngraph_he:latest
 docker run -p 10093:10093 --hostname=intel_ngraph_he \
