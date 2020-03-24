@@ -1,6 +1,13 @@
 # Intel nGraph + HE Transformer project
 This repository includes an easy way to install and build a docker and some examples of [Intel nGraph HE](https://github.com/IntelAI/he-transformer).
 
+## Quickstart Guide
+Assuming you already have docker installed in your computer and want to run the image itself:
+```
+docker pull jcabrero/intel_ngraph_he:latest
+docker run -p 10093:10093 --hostname=intel_ngraph_he --name=intel_ngraph_he -it --rm -v $(pwd)/:/root/mnt_dir jcabrero/intel_ngraph_he:latest bash
+```
+The `-p` for forwarding the port `10093` from the machine, to port `10093` of the container. The flags `--hostname` and `--name` indicate the name of the container.  To open an interactive shell with the container we use `-it` and to remove the container after exiting it `--rm`. Finally, the `-v` to mount the directory inside the container.
 
 ## Installing Docker in CentOS 7 (CERN)
 The main source of the `docker` installation is [Docker Documentation](https://docs.docker.com/install/linux/docker-ce/centos/).

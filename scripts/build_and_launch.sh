@@ -3,6 +3,7 @@
 #echo "Restarting docker daemon [Because internet does not work]"
 #sudo systemctl restart docker
 #echo
+
 # list active docker containers
 echo "Active docker containers..."
 docker ps -a
@@ -21,7 +22,7 @@ docker images -qa ubuntu:he_transformer* | xargs docker rmi -f "${1}"
 
 
 echo "Building $1 dockerfile"
-docker build -f ../docker/Dockerfile -t ubuntu:he_transformer .
+docker build -f ../docker/Dockerfile -t jcabrero/intel_ngraph_he:latest .
 
-echo "Launching and mounting jolly_gauss"
-docker run --hostname=jolly_gauss --name=jolly_gauss -it --rm -v $(pwd):/root/mnt_dir ubuntu:he_transformer bash
+#echo "Launching and mounting jolly_gauss"
+#docker run --hostname=jolly_gauss --name=jolly_gauss -it --rm -v $(pwd):/root/mnt_dir ubuntu:he_transformer bash

@@ -2,4 +2,5 @@ downloaded_models/
 *.pkl
 *.onnx
 *.npy
+*.png
 __pycache__/
