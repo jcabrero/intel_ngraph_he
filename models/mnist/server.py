@@ -42,6 +42,7 @@ import IPython
 from IPython import display
 import ipywidgets as widgets
 
+import ngraph_bridge
 # For loading and making use of HE Transformer
 from tensorflow.core.protobuf import rewriter_config_pb2
 from tensorflow.python.tools import freeze_graph
@@ -224,11 +225,15 @@ def get_config_for_ngraph_client(tensor_param_name):
     server_config.parameter_map["encryption_parameters"].s = b'config.json'
     server_config.parameter_map["enable_client"].s = str(True).encode()
 
-    
+    server_config.parameter_map["enable_gc"].s = b"False"
+    server_config.parameter_map["mask_gc_inputs"].s = b"False"
+    server_config.parameter_map["mask_gc_outputs"].s = b"False"
+    server_config.parameter_map["num_gc_threads"].s = b"1"
+
     # Only server
-    server_config.parameter_map[tensor_param_name].s = b"encrypt"
+    #server_config.parameter_map[tensor_param_name].s = b"encrypt"
     # With client
-    # server_config.parameter_map[tensor_param_name].s = b"client_input"
+    server_config.parameter_map[tensor_param_name].s = b"client_input"
     # Pack data
     #server_config.parameter_map[tensor_param_name].s += b",packed"
 
@@ -245,15 +250,20 @@ def get_config_for_ngraph_client(tensor_param_name):
 
 print("STARTING CRITICAL SECTION OF CODE")
 # %%px --target [1] --noblock
-(x_train, y_train, x_test, y_test) = load_mnist()
+
 tf.compat.v1.reset_default_graph()
+(x_train, y_train, x_test, y_test) = load_mnist()
 tf.import_graph_def(load_pb_file('./models/mlp.pb'))
+
 # Get input / output tensors
 x_input = tf.compat.v1.get_default_graph().get_tensor_by_name('import/input:0')
 y_output = tf.compat.v1.get_default_graph().get_tensor_by_name('import/output/BiasAdd:0')
-
+batch_size = 1
+x_test = x_test[0:batch_size]
 # Create configuration to encrypt input
 configx = get_config_for_ngraph_client(x_input.name)
+print(configx)
+print(x_test.shape)
 with tf.compat.v1.Session(config=configx) as sess:
     sess.run(tf.compat.v1.global_variables_initializer())
     start_time = time.time()

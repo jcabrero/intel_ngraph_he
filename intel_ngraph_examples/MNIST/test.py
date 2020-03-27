@@ -49,6 +49,7 @@ def test_network(FLAGS):
     # Create configuration to encrypt input
     FLAGS, unparsed = server_argument_parser().parse_known_args()
     config = server_config_from_flags(FLAGS, x_input.name)
+    print(config, x_test.shape)
     with tf.compat.v1.Session(config=config) as sess:
         sess.run(tf.compat.v1.global_variables_initializer())
         start_time = time.time()
