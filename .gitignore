@@ -4,5 +4,5 @@ downloaded_models/
 *.npy
 *.png
 .*
-.ipynb_checkpoints
+*ipynb_checkpoints*
 __pycache__/
