@@ -29,4 +29,3 @@ correct = np.sum(np.equal(y_pred, y_test.argmax(axis=1)))
 acc = correct / float(FLAGS.batch_size)
 print("correct", correct)
 print("Accuracy (batch size", FLAGS.batch_size, ") =", acc * 100.0, "%")
-
