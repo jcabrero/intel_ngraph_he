@@ -2,7 +2,6 @@ downloaded_models/
 *.pkl
 *.onnx
 *.npy
-*.png
 .*
 *ipynb_checkpoints*
 __pycache__/
