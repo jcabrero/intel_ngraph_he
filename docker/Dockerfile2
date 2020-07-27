@@ -1,66 +1,99 @@
- # ******************************************************************************
-# Copyright 2018-2020 Intel Corporation
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ******************************************************************************
-
-# Environment to build and unit-test he-transformer
-# with g++ 7.4.0
-# with clang++ 9.0.1
-# with python 3.6.8
-# with cmake 3.14.4
-
 FROM ubuntu:18.04
 
-RUN apt-get update && apt-get install -y \
-        python3-pip virtualenv \
-        python3-numpy python3-dev python3-wheel \
-        git \
-        unzip wget \
-        sudo \
-        bash-completion \
-        build-essential cmake \
-        software-properties-common \
-        git \
-        wget patch diffutils libtinfo-dev \
-        autoconf libtool \
-        doxygen graphviz \
-        yapf3 python3-yapf
+ARG USER=jocabrer
+ARG GROUP=it
+ARG UID=130173
+ARG GID=2763
+ARG PW=docker
+ARG ENV_NAME=anacondo
+
+RUN groupadd -g ${GID} ${GROUP}
+RUN useradd -s /bin/bash -d /home/${USER} --uid=${UID} -m -G sudo ${USER} && echo "${USER}:${PW}" | chpasswd
+
+# Base image is Ubuntu and needed tools for Linux usage
+# Getting python and related tools
+# Getting net-tools and ping
+# Getting zlib - Compression of HE
+RUN apt-get update -y && \
+apt-get install -y build-essential  software-properties-common bash-completion man  manpages-posix && \ 
+apt-get install -y python3 python3-pip virtualenv python3-numpy python3-dev python3-wheel && \
+apt-get install -y vim git wget curl unzip sudo && \
+apt-get install -y patch diffutils libtinfo-dev autoconf doxygen graphviz yapf3 python3-yapf && \
+apt install -y protobuf-compiler libprotobuf-dev && \
+apt-get install -y net-tools iputils-ping dnsutils
 
 # Install clang-9
-RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-RUN apt-add-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main"
-RUN apt-get update && apt install -y clang-9 clang-tidy-9 clang-format-9
+RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add - && \
+apt-add-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main" && \
+apt-get update && apt install -y clang-9 clang-tidy-9 clang-format-9
 
-RUN apt-get clean autoclean && \
-        apt-get autoremove -y
+# Install CMAKE to /root/deps/cmake
+RUN mkdir -p /home/${USER}/deps/cmake && cd /home/${USER}/deps && \
+wget https://github.com/Kitware/CMake/releases/download/v3.16.1/cmake-3.16.1-Linux-x86_64.sh && \
+bash cmake-3.16.1-Linux-x86_64.sh --skip-license --prefix=/home/${USER}/deps/cmake
 
-# For ngraph-tf integration testing
-RUN pip3 install --upgrade pip setuptools virtualenv==16.1.0
+## Making links
+RUN ln -s /home/${USER}/deps/cmake/bin/cmake /bin/cmake &&  ln -s /home/${USER}/deps/cmake/bin/ccmake /bin/ccmake &&  ln -s /home/${USER}/deps/cmake/bin/ctest /bin/ctest
+# We install SEAL HE library in /libs
+# RUN mkdir /home/${USER}/lib && cd /home/${USER}/deps/ && git clone https://github.com/microsoft/SEAL.git && cd /home/${USER}/deps/SEAL/native/src && cmake . -DCMAKE_INSTALL_PREFIX=/home/${USER}/lib && make -j && make install
 
-# SEAL requires newer version of CMake
-RUN pip3 install cmake --upgrade
 
-RUN cmake --version
-RUN make --version
-RUN gcc --version
-RUN clang++-9 --version
-RUN c++ --version
-RUN python3 --version
-RUN virtualenv --version
 
-# Get bazel for ng-tf
-RUN wget https://github.com/bazelbuild/bazel/releases/download/0.25.2/bazel-0.25.2-installer-linux-x86_64.sh
-RUN chmod +x ./bazel-0.25.2-installer-linux-x86_64.sh
-RUN bash ./bazel-0.25.2-installer-linux-x86_64.sh
-WORKDIR /home
+WORKDIR /home/${USER}
+
+RUN echo "PS1='\[\033[01;31m\](docker) \[\e[01;36m\]\u\[\e[01;37m\]@\[\e[01;33m\]\H\[\e[01;37m\]:\[\e[01;32m\]\w\[\e[01;37m\]\$\[\033[0;37m\] '" >> /root/.bashrc && \
+echo "alias python=python3" >> /root/.bashrc && \
+echo "alias pip=pip3" >> /root/.bashrc
+
+RUN echo "PS1='\[\033[01;31m\](docker) \[\e[01;36m\]\u\[\e[01;37m\]@\[\e[01;33m\]\H\[\e[01;37m\]:\[\e[01;32m\]\w\[\e[01;37m\]\$\[\033[0;37m\] '" >> /home/${USER}/.bashrc && \
+echo "alias python=python3" >> /home/${USER}/.bashrc && \
+echo "alias pip=pip3" >> /home/${USER}/.bashrc
+# RUN echo "source /root/he-transformer/external/venv-tf-py3/bin/activate" >> /root/.bashrc
+# RUN echo "export HE_TRANSFORMER='/root/he-transformer'" >> /root/.bashrc
+RUN echo "source /home/${USER}/he-transformer/external/venv-tf-py3/bin/activate" >> /home/${USER}/.bashrc
+RUN echo "export HE_TRANSFORMER='/home/${USER}/he-transformer'" >> /home/${USER}/.bashrc
+
+RUN chown -R ${USER}:${GID} /home/${USER}/deps
+
+
+RUN mkdir -p /home/${USER}/deps/bazel && cd /home/${USER}/deps/bazel && \
+wget https://github.com/bazelbuild/bazel/releases/download/0.25.2/bazel-0.25.2-installer-linux-x86_64.sh && \
+bash bazel-0.25.2-installer-linux-x86_64.sh --user && \
+echo "export PATH=$PATH:~/bin" >> /home/${USER}/.bashrc
+
+
+RUN git clone https://github.com/IntelAI/he-transformer.git && cd he-transformer && \
+export HE_TRANSFORMER=/home/${USER}/he-transformer && \
+mkdir build && cd build && \
+cmake .. -DCMAKE_CXX_COMPILER=clang++-9 && \
+make -j install
+
+
+RUN pip3 install jupyter jupyterlab tqdm imageio matplotlib scipy sklearn pandas
+
+# RUN wget https://repo.continuum.io/archive/Anaconda3-5.3.1-Linux-x86_64.sh && \
+# bash Anaconda3-5.3.1-Linux-x86_64.sh -b && \
+# rm Anaconda3-5.3.1-Linux-x86_64.sh
+
+# ENV PATH /home/${USER}/anaconda3/bin:$PATH
+
+
+# RUN conda update conda && \
+# conda update anaconda && \
+# conda update --all
+
+# #RUN conda activate ${ENV_NAME}
+# #RUN conda create -n ${ENV_NAME} anaconda tensorflow
+# RUN conda create -n ${ENV_NAME} anaconda
+# #RUN conda install tensorflow -c intel 
+# RUN conda install -n ${ENV_NAME} -c conda-forge jupyterlab 
+# RUN conda install -n ${ENV_NAME} pytorch torchvision -c pytorch
+# #WORKDIR /root
+
+# # Colored terminal
+# # RUN useradd -s /bin/bash -d /home/jocabrer -m -G sudo jocabrer
+
+
+USER ${USER}:${GID}
+
+CMD ['bash']
